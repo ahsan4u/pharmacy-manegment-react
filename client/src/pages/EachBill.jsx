@@ -66,7 +66,7 @@ export default function EachBill() {
                             }
                         </tbody>
                     </table>
-                    <div className="w-full flex justify-between items-center bg-[#121212] h-12 px-1.5">
+                    <div className="w-full flex justify-between items-center bg-[#12121b] h-12 px-1.5">
                         <div className="h-[80%] flex gap-x-1 items-center">
                             <span className="font-medium tracking-wider">TOTAL</span>
                             <p className="w-40 bg-[#393939] rounded-md h-full flex items-center justify-center" >{bill?.totalPrice} ₹ </p>
