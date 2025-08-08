@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+body {
+    color: white;
+    background-color: #111217;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+.ubuntu {
+    font-family: "Ubuntu", sans-serif;
+}
+
+.logo-font {
+    font-family: headerFont;
+}
+
+@font-face {
+    font-family: headerFont;
+    src: url(/font/coffee.ttf);
+}
+
+
+@font-face {
+    font-family: panton;
+    src: url(/font/Panton-Trial-Bold.ttf);
+}
+
+.pantonFont {
+    font-family: panton;
+}
+
+select, button { cursor: pointer; }
+
+input { padding-left: 8px; outline: none; }
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

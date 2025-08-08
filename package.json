@@ -1,0 +1,36 @@
+{
+  "name": "guardian-pharmacy",
+  "version": "1.0.0",
+  "description": "Desktop pharmacy management app built with Electron",
+  "author": "Mohd Ahsan",
+  "main": "main.js",
+  "devDependencies": {
+    "electron-builder": "^26.0.12"
+  },
+  "scripts": {
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.guardianpharmacy",
+    "productName": "Guardian-pharmacy",
+    "files": [
+      "client/dist/**/*",
+      "server/**/*",
+      "main.js",
+      "resources/mongod/mongod.exe"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/mongodb",
+        "to": "mongodb"
+      }
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}
