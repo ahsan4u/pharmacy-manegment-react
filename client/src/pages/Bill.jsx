@@ -25,17 +25,17 @@ export default function Bill() {
     const [suggestIdx, setSuggestIdx] = useState(0);
     const suggests_ = useRef([]);
     const suggestIdx_ = useRef(0);
-    let totalPrice = items.reduce((a, b) => a + (Math.ceil(priceAfterDiscount(b.mrp, 10) * b.quantity)), 0);
+    let totalPrice = items.reduce((a, b) => a + (Math.ceil(priceAfterDiscount(b.mrp, b.discount) * b.quantity)), 0);
     if (isNaN(totalPrice)) totalPrice = null;
     useEffect(() => { setPaidAmt(totalPrice) }, [items]);
 
     useEffect(() => { suggests_.current = suggests; suggestIdx_.current = suggestIdx }, [suggests, suggestIdx]);
     useEffect(() => {
         const keyFn = (e) => {
-            if (e.key === 'ArrowUp') return setSuggestIdx(prev => prev > 0 && prev - 1);
-            if (e.key === 'ArrowDown') return setSuggestIdx(prev => prev < 4 ? prev + 1 : 4);
+            if (e.key === 'ArrowUp')   return setSuggestIdx(prev => prev > 0 && prev - 1);
+            if (e.key === 'ArrowDown') return setSuggestIdx(prev => prev < suggests_.current.length-1 ? prev + 1 : suggests_.current.length-1);
             if (e.key === 'Enter') {
-                setItems(prev => [...prev, suggests_.current[suggestIdx_.current]]);
+                setItems(prev => [suggests_.current[suggestIdx_.current], ...prev]);
                 setInputTxt(''); setSuggests([]); setSuggestIdx(0);
                 lookup_.current.classList.remove('left-3');
                 lookup_.current.classList.add('-left-[150%]');
@@ -59,6 +59,7 @@ export default function Bill() {
     }
 
     const delaySearch = useMemo(() => debouncer(async (txt) => {
+        setSuggestIdx(0);
         searchFn(`input=${txt}`).then(data => setSuggests(data)).catch(err => console.log(err.message));
     }, 200), []);
 
@@ -163,7 +164,7 @@ export default function Bill() {
                             <div className="grid grid-cols-[30fr_10fr_10fr_10fr_10fr] gap-2.5 items-center font-light text-sm">
                                 {
                                     items?.map((item, idx) => (
-                                        <Fragment key={idx}>
+                                        <Fragment key={item._id}>
                                             <div className="even:bg-[#00000018] odd:bg-[#00000034] py-1 text-start flex flex-col justify-center pl-2 rounded-r-md group relative overflow-hidden">
                                                 <span className="font-extralight text-[8px] absolute right-0.5 top-4 group-hover:hidden">{item.weight}</span>
                                                 <div className="flex justify-between">

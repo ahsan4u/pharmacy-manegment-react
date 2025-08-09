@@ -1,13 +1,29 @@
 const express = require('express');
 const { Medicines, Bills } = require('./module');
+const { priceAfterDiscount, limit } = require('../../client/src/fns');
 
 const router = express.Router();
 
 
 router.route('/analytics-data').get(async (req, res)=> {
-    const profits = await Bills.find().select({profit: 1, date: 1, id: 0});
-    // console.log(profits);
+    try {
+        const profits = {};
+        const date = new Date();
+        profits.today   = await Bills.find({date: {$gte: date.setHours(0,0,0,0)}}).select({profit: 1, _id: 0});
+        profits.monthly = await Bills.find({date: {$gte: date.setMonth(date.getMonth() - 1)}}).select({profit: 1, _id: 0});
+        profits.yearly  = await Bills.find({date: {$gte: date.setFullYear(date.getFullYear() - 1)}}).select({profit: 1, _id: 0});
+        profits.pending = await Bills.find({pending: {$gt: 0}}).select({pending: 1, _id: 0});
 
+        const MedAlert = {};
+        MedAlert.expiry = await Medicines.findOne().sort({exp: 1});
+        MedAlert.lowQty = await Medicines.findOne().sort({quantity: 1});
+
+        for(key in profits) profits[key] =  profits[key].reduce((sum, a)=>(a.profit || a.pending || 0) + sum, 0);
+
+        res.status(200).send({profits, MedAlert});
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
 })
 
 router.route('/search').get(async (req, res) => {
@@ -29,10 +45,12 @@ router.route('/add-bill').post(async (req, res) => {
         })
 
         const profit = req.body.items.reduce((sum, item)=>{
-            return console.log(item);
+            const cp = item.cost;
+            const sp = priceAfterDiscount(item.mrp, item.discount);
+            return sum + (sp - cp);
         }, 0);
         
-        await Bills.create({ username, products, totalPrice, pending });
+        await Bills.create({ username, products, totalPrice, pending, profit });
         res.status(200).send({ message: 'New Bill Added Successfully' });
     } catch (error) {
         console.log(error.message);
@@ -42,7 +60,6 @@ router.route('/add-bill').post(async (req, res) => {
 
 router.route('/add-medicine').post(async (req, res) => {
     const body = req.body;
-    console.log('hi');
 
     try {
         await Medicines.create(body);
@@ -82,7 +99,6 @@ router.route('/update-medicine').post(async (req, res) => {
 
 router.route('/delete-medicine').post(async (req, res)=> {
     try {
-        console.log(req.body);
         await Medicines.deleteOne({ _id: req.body.id });
         res.status(200).send({ message: 'Medicine Successfully Deleted' });
     } catch (error) {
@@ -92,17 +108,18 @@ router.route('/delete-medicine').post(async (req, res)=> {
 
 
 router.route('/sells').get(async (req, res) => {
+    const { page } = req.query;
     const { search, sort, pending } = JSON.parse(req.query.filter);
-    const status = pending == 'pending' ? { pending: { $gt: 0 } } : pending == 'settled' ? { pending: 0 } : {};
+    const status = pending === 'pending' ? { pending: { $gt: 0 } } : pending == 'settled' ? { pending: 0 } : {};
     
     let sortQuery = { date: -1 };
-    if (sort == 'name') sortQuery = { username: 1 }
-    if (sort == 'newest') sortQuery = { date: -1 }
-    if (sort == 'oldest') sortQuery = { date: 1 }
+    if (sort == 'name')     sortQuery = { username: 1 }
+    if (sort == 'newest')   sortQuery = { date: -1 }
+    if (sort == 'oldest')   sortQuery = { date: 1 }
     if (sort == 'price-high') sortQuery = { totalPrice: -1 }
-    if (sort == 'price-low') sortQuery = { totalPrice: 1 }
+    if (sort == 'price-low')  sortQuery = { totalPrice: 1 }
     
-    const bills = await Bills.find({ ...status, username: new RegExp(search, 'i') }).sort(sortQuery);
+    const bills = await Bills.find({ ...status, username: new RegExp(search, 'i') }).sort(sortQuery).skip((page-1)*limit).limit(limit).select({username: 1, quantity: 1, totalPrice : 1, pending: 1, date: 1});
     res.status(200).send(bills);
 })
 

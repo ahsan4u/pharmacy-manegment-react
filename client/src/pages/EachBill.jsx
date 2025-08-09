@@ -75,7 +75,7 @@ export default function EachBill() {
                             <span className="font-medium tracking-wider">PENDING</span>
                             <input onChange={(e) => setPending(e.target.value)} ref={pendingInput_} type="number" name="Pending" id="" disabled={!isEdite} value={pending} className="w-40 bg-[#393939] rounded-md h-full ml-2 text-center outline-none" />
                         </div>
-                        {bill?.pending > 0 && <button onClick={submitPendingFn} className="w-40 bg-blue-400 text-black font-bold rounded-md h-[80%] text-center">{isEdite ? 'Submit' : 'Sattle Amount'}</button>}
+                        <button onClick={submitPendingFn} className="w-40 bg-blue-400 text-black font-bold rounded-md h-[80%] text-center">{isEdite ? 'Submit' : 'Settle Amount'}</button>
                     </div>
                 </div>
             </div>

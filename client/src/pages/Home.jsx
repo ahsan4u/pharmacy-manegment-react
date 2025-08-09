@@ -1,33 +1,35 @@
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from 'axios';
+import { useQuery } from "@tanstack/react-query";
+import { getPrettyDate } from "../fns";
 
 export default function Home() {
-
-    useEffect(()=>{
-        
-    }, [])
+    const {data={}} = useQuery({
+        queryKey: ['home-data'],
+        queryFn: async ()=> axios.get('/api/analytics-data').then(res=>res.data)
+    })
+    
 
     return (
         <div className="h-[92vh] bg-[url(/images/home-bg2.jpg)] bg-cover">
             <div className="h-[35%] flex justify-evenly pt-[1%]">
                 <div className="h-full bg-[#363b3c5a] border-4 border-[#363e3f79] w-[23%] rounded-4xl flex justify-center items-center flex-col gap-y-5">
-                    <p className="text-5xl font-bold text-green-500">4,320₹</p>
+                    <p className="text-5xl font-bold text-green-500">{data.profits?.today || 0} ₹</p>
                     <p className="text-cyan-300 font-medium text-3xl">Today Profit</p>
                 </div>
 
                 <div className="h-full bg-[#363b3c5a] border-4 border-[#363e3f79] w-[23%] rounded-4xl flex justify-center items-center flex-col gap-y-5">
-                    <p className="text-5xl font-bold text-green-500">4,320₹</p>
+                    <p className="text-5xl font-bold text-green-500">{data.profits?.monthly || 0} ₹</p>
                     <p className="text-cyan-300 font-medium text-3xl">Monthly Profit</p>
                 </div>
 
                 <div className="h-full bg-[#363b3c5a] border-4 border-[#363e3f79] w-[23%] rounded-4xl flex justify-center items-center flex-col gap-y-5">
-                    <p className="text-5xl font-bold text-green-500">4,320₹</p>
+                    <p className="text-5xl font-bold text-green-500">{data.profits?.yearly || 0} ₹</p>
                     <p className="text-cyan-300 font-medium text-3xl">Yearly Profit</p>
                 </div>
 
                 <div className="h-full bg-[#363b3c5a] border-4 border-[#363e3f79] w-[23%] rounded-4xl flex justify-center items-center flex-col gap-y-5">
-                    <p className="text-5xl font-bold text-red-500">4,320₹</p>
+                    <p className="text-5xl font-bold text-red-500">{data.profits?.pending || 0} ₹</p>
                     <p className="text-cyan-300 font-medium text-3xl">Pending Amount</p>
                 </div>
             </div>
@@ -42,27 +44,27 @@ export default function Home() {
                 </Link>
 
                 <Link to='/sales-book' className="h-full w-[31%] bg-[#343434bf] rounded-3xl flex justify-center items-center hover:scale-[1.02] transition-transform duration-300">
-                    <p className="text-center text-4xl font-bold">Previous Amount<br />Sattlement</p>
+                    <p className="text-center text-4xl font-bold">Previous Amount<br />Settlement</p>
                 </Link>
             </div>
 
             <div className="h-[19vh] flex justify-evenly items-center mt-[1%]">
-                <div className="w-[47%] h-[90%] bg-[#1b1b1bdb] border-4 border-[#262626db] rounded-3xl flex justify-between px-5 items-center">
+                <Link to='/stock' className="w-[47%] h-[90%] bg-[#1b1b1bdb] border-4 border-[#262626db] rounded-3xl flex justify-between px-5 items-center">
                     <p className="text-3xl font-bold text-orange-400">Closest Expiry Medicine</p>
                     <div className="space-y-1.5">
-                        <p className="text-2xl font-medium text-cyan-300">Zerodol SP</p>
-                        <p>EXP: <span className="text-red-400">26-10-2024</span></p>
-                        <p>QTY: <span className="text-green-300 text-lg">36</span></p>
+                        <p className="text-2xl font-medium text-cyan-300">{data.MedAlert?.expiry.name}</p>
+                        <p>EXP: <span className="text-red-400">{getPrettyDate(data.MedAlert?.expiry.exp)}</span></p>
+                        <p>QTY: <span className="text-green-300 text-lg">{data.MedAlert?.expiry.quantity}</span></p>
                     </div>
-                </div>
+                </Link>
 
-                <div className="w-[47%] h-[90%] bg-[#1b1b1bdb] border-4 border-[#262626db] rounded-3xl flex justify-between px-5 items-center">
+                <Link to='/stock' className="w-[47%] h-[90%] bg-[#1b1b1bdb] border-4 border-[#262626db] rounded-3xl flex justify-between px-5 items-center">
                     <p className="text-3xl font-bold text-orange-400">Restock Medicine Alert</p>
                     <div className="space-y-2">
-                        <p className="text-2xl font-medium text-cyan-300">Naproxen</p>
-                        <p>QTY: <span className="text-red-400 text-lg">04</span></p>
+                        <p className="text-2xl font-medium text-cyan-300">{data.MedAlert?.lowQty.name}</p>
+                        <p>QTY: <span className="text-red-400 text-lg">{data.MedAlert?.lowQty.quantity}</span></p>
                     </div>
-                </div>
+                </Link>
             </div>
         </div>
     )

@@ -1,22 +1,23 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { Link } from 'react-router-dom'
-import { debouncer, getDaysOff, getPrettyDate } from '../fns';
+import { debouncer, getDaysOff, getPrettyDate, limit } from '../fns';
 import { useMemo, useState } from 'react';
 
 
 export default function Sales() {
     const [filter, setFilter] = useState({ search: '', sort: '', pending: 'default' });
+    const [page, setPage] = useState(1);
+
     const { data } = useQuery({
-        queryKey: ['bills', filter],
-        queryFn: async () => { const { data } = await axios.get(`/api/sells?filter=${JSON.stringify(filter)}`); return data }
+        queryKey: ['bills', filter, page],
+        queryFn: async () => { const { data } = await axios.get(`/api/sells?page=${page}&filter=${JSON.stringify(filter)}`); return data }
     })
 
-    
-    const delayRunFn = useMemo(()=>debouncer((input)=>setFilter(pre => ({ ...pre, search: input })), 300));
+    const delayRunFn = useMemo(() => debouncer((input) => setFilter(pre => ({ ...pre, search: input })), 300));
     function setVal(e) {
         const { name, value } = e.target;
-        if(name == 'search') return delayRunFn(value);
+        if (name == 'search') return delayRunFn(value);
         setFilter(pre => ({ ...pre, [name]: value }))
     }
 
@@ -60,7 +61,7 @@ export default function Sales() {
                             <p className={`py-2 bg-[#1e1e1e] ${item.pending ? 'text-red-600' : 'text-blue-300'} pl-2 font-bold pantonFont tracking-wider text-xl relative capitalize`}>{item.username || 'unknown'} <span className="absolute right-1 top-1 text-xs font-sans text-slate-400">{getPrettyDate(item.date)} <span className="ml-1 font-light text-green-300">[ {getDaysOff(item.date)} ]</span></span></p>
 
                             <div className="p-2 space-y-1 relative tracking-wider">
-                                <p className="">Quantity: <span className="font-medium ml-8">{item.products.length} items</span></p>
+                                {/* <p className="">Quantity: <span className="font-medium ml-8">{item.products.length} items</span></p> */}
                                 <p className="">Total Amt: <span className="font-medium ml-6">{item.totalPrice} ₹</span></p>
                                 <p className="">Paid Amt: <span className="font-medium ml-6">{item.totalPrice - item.pending} ₹</span></p>
                                 {!!item.pending && <p className="bg-red-900 inline-block pl-1 pr-4 py-1 rounded-md">Pending Amt: <span className="font-medium ml-2">{item.pending} ₹</span></p>}
@@ -70,6 +71,11 @@ export default function Sales() {
                     ))
                 }
             </div>
+ 
+            <div className='flex gap-x-6 justify-center relative z-40 my-10'>
+                <button onClick={()=>setPage(pre=>pre-1)}  disabled={page <= 1} className={`pt-0.5 pb-2 px-10 border-2 border-slate-600 rounded-md font-bold text-2xl ${page > 1 && 'hover:bg-gray-700'}`}>{'<'}</button>
+                <button onClick={()=>setPage(pre=> pre+1)} disabled={data?.length < limit} className='pt-0.5 pb-2 px-10 bg-gray-800 rounded-md font-bold text-2xl hover:bg-gray-700'>{'>'}</button>
+            </div>
         </>
-    )
+    )   
 }
