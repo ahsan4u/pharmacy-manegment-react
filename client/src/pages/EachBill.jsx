@@ -20,6 +20,7 @@ export default function EachBill() {
 
     async function submitPendingFn() {
         if (isEdite) {
+            if(pending == bill.pending) return setEdite(false);
             axios.post('/api/update-bill', {id, pending}).then(({data})=>setMessage(data.message)).catch(err=>setMessage(err.message)).finally(()=>setEdite(false));
         } else {
             setEdite(true);
@@ -58,9 +59,9 @@ export default function EachBill() {
                                     <tr key={idx} className="text-center align-middle h-10">
                                         <td colSpan="2">{item.name}</td>
                                         <td>{item.mrp} ₹</td>
-                                        <td>{item.quantity}</td>
+                                        <td>{item.quantity || 1}</td>
                                         <td>{item.discount}%</td>
-                                        <td colSpan="2">{priceAfterDiscount(item.mrp, item.discount)} ₹</td>
+                                        <td colSpan="2">{priceAfterDiscount(item.mrp, item.discount) * (item.quantity || 1)} ₹</td>
                                     </tr>
                                 ))
                             }

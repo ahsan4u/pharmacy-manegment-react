@@ -14,11 +14,11 @@ export default function Sales() {
         queryFn: async () => { const { data } = await axios.get(`/api/sells?page=${page}&filter=${JSON.stringify(filter)}`); return data }
     })
 
-    const delayRunFn = useMemo(() => debouncer((input) => setFilter(pre => ({ ...pre, search: input })), 300));
+    const delayRunFn = useMemo(() => debouncer((input) => {setPage(1); setFilter(pre => ({ ...pre, search: input }))}, 300));
     function setVal(e) {
         const { name, value } = e.target;
         if (name == 'search') return delayRunFn(value);
-        setFilter(pre => ({ ...pre, [name]: value }))
+        setFilter(pre => ({ ...pre, [name]: value }));
     }
 
     return (

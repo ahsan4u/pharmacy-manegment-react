@@ -1,10 +1,12 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 
 export default function Header() {
-
+    const location = useLocation();
+    const navigate = useNavigate();
     return (
         <div className="h-[8vh] flex justify-between items-center pl-3 pr-5 bg-[#111217] sticky top-0 z-50">
-            <div>
+            <div className={`flex h-full items-center gap-x-3 ${location.pathname == "/"? '-translate-x-[10%]': '-translate-x-0'} transition-transform duration-500`}>
+                <img onClick={() => navigate(-1)} src="/icons/angle.png" alt="" className="h-[70%] invert bg-slate-200 rounded-md p-2 cursor-pointer"/>
                 <Link to='/' className="logo-font text-5xl ">Guardian Pharmacy</Link>
             </div>
 

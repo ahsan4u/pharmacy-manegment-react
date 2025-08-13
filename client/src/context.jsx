@@ -8,7 +8,7 @@ export function GlobalProvider({ children }) {
 
     return (
         <GlobalContext.Provider value={setMessage}>
-            {message && <p className={`text-center fixed top-[10vh] z-50 left-2 px-2 py-2 rounded-md max-w-96 ${message.includes('Successfull') ? 'bg-green-700' : 'bg-red-600'}`}>{message}</p>}
+            {message && <p className={`text-center fixed top-[10vh] z-50 left-2 px-2 py-2 rounded-md max-w-96 text-wrap overflow-hidden ${message.includes('Successfull') ? 'bg-green-700' : 'bg-red-600'}`}>{message}</p>}
             {children}
         </GlobalContext.Provider>
     )

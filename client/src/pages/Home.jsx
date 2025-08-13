@@ -49,7 +49,7 @@ export default function Home() {
             </div>
 
             <div className="h-[19vh] flex justify-evenly items-center mt-[1%]">
-                <Link to='/stock' className="w-[47%] h-[90%] bg-[#1b1b1bdb] border-4 border-[#262626db] rounded-3xl flex justify-between px-5 items-center">
+                <Link to='/stock?filter=expiry' className="w-[47%] h-[90%] bg-[#1b1b1bdb] border-4 border-[#262626db] rounded-3xl flex justify-between px-5 items-center">
                     <p className="text-3xl font-bold text-orange-400">Closest Expiry Medicine</p>
                     <div className="space-y-1.5">
                         <p className="text-2xl font-medium text-cyan-300">{data.MedAlert?.expiry.name}</p>
@@ -58,7 +58,7 @@ export default function Home() {
                     </div>
                 </Link>
 
-                <Link to='/stock' className="w-[47%] h-[90%] bg-[#1b1b1bdb] border-4 border-[#262626db] rounded-3xl flex justify-between px-5 items-center">
+                <Link to='/stock?filter=qty-low' className="w-[47%] h-[90%] bg-[#1b1b1bdb] border-4 border-[#262626db] rounded-3xl flex justify-between px-5 items-center">
                     <p className="text-3xl font-bold text-orange-400">Restock Medicine Alert</p>
                     <div className="space-y-2">
                         <p className="text-2xl font-medium text-cyan-300">{data.MedAlert?.lowQty.name}</p>

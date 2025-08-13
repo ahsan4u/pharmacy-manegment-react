@@ -1,8 +1,9 @@
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
-import { debouncer, getPrettyDate, getRemainingDaysFromToday } from "../fns";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { debouncer, getPrettyDate, getRemainingDaysFromToday, limit } from "../fns";
+import { useMemo, useRef, useState } from "react";
 import { useGlobalItems } from '../context';
+import { useLocation } from "react-router-dom";
 
 async function fetchData(query) {
     const { data } = await axios.get(`/api/medicines?${query}`);
@@ -10,19 +11,21 @@ async function fetchData(query) {
 }
 
 export default function Stock() {
-    const [sort, setSort] = useState('');
+    const query = new URLSearchParams(useLocation().search);
+    const [sort, setSort] = useState(query.get('filter') || '');
     const [searchType, setSearchType] = useState('name');
     const [searchInput, setSearchInput] = useState('');
     const [formData, setFormData] = useState({});
     const editeOpt_ = useRef([]);
     const formDiv_ = useRef([]);
     const setMessage = useGlobalItems();
+    const [page, setPage] = useState(1);
 
-    const delayInputFn = useMemo(() => debouncer((input) => { setSearchInput(input) }, 200));
+    const delayInputFn = useMemo(() => debouncer((input) => { setPage(1); setSearchInput(input) }, 200));
 
     const { data, refetch: refetchMedicines } = useQuery({
-        queryKey: ['data', sort,searchType, searchInput],
-        queryFn: () => fetchData(`sort=${sort}&searchType=${searchType}&search=${searchInput}`)
+        queryKey: ['data', sort, searchType, searchInput, page],
+        queryFn: () => fetchData(`page=${page}&sort=${sort}&searchType=${searchType}&search=${searchInput}`)
     });
 
     function activatedite(isEdite, idx) {
@@ -50,6 +53,7 @@ export default function Stock() {
     }
 
     function setVal(e) {
+        setPage(1);
         const { name, value } = e.target;
         setFormData(pre => ({ ...pre, [name]: value }));
     }
@@ -82,11 +86,13 @@ export default function Stock() {
             <div className="flex justify-between p-2 bg-amber-900 relative z-10">
                 <div>
                     <div className="bg-amber-950 border-black h-full px-2 rounded-xl overflow-hidden">
-                        <select onChange={(e) => setSort(e.target.value)} name="sort" value={sort} className="h-full bg-amber-950 outline-none">
+                        <select onChange={(e) => {setSort(e.target.value); setPage(1)}} name="sort" value={sort} className="h-full bg-amber-950 outline-none">
                             <option value="">Sort</option>
                             <option value="name">Name (A-Z)</option>
                             <option value="salt">Salt (A-Z)</option>
                             <option value="expiry">Newest Expiry First</option>
+                            <option value="qty-low">Quantity: Low to High</option>
+                            <option value="qty-high">Quantity: High to Low</option>
                             <option value="price-low">Price: Low to High</option>
                             <option value="price-high">Price: High to Low</option>
                         </select>
@@ -159,6 +165,11 @@ export default function Stock() {
                     ))
                 }
             </div>
+
+            {!(page == 1 && data?.length < limit) && <div className='flex gap-x-6 justify-center relative z-40 my-10'>
+                <button onClick={() => setPage(pre => pre - 1)} disabled={page <= 1} className={`pt-0.5 pb-2 px-10 border-2 border-slate-600 rounded-md font-bold text-2xl ${page > 1 && 'hover:bg-gray-700'}`}>{'<'}</button>
+                <button onClick={() => setPage(pre => pre + 1)} disabled={data?.length < limit} className='pt-0.5 pb-2 px-10 bg-gray-800 rounded-md font-bold text-2xl hover:bg-gray-700'>{'>'}</button>
+            </div>}
         </>
     )
 }

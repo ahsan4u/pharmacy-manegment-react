@@ -25,7 +25,7 @@ export default function Bill() {
     const [suggestIdx, setSuggestIdx] = useState(0);
     const suggests_ = useRef([]);
     const suggestIdx_ = useRef(0);
-    let totalPrice = items.reduce((a, b) => a + (Math.ceil(priceAfterDiscount(b.mrp, b.discount) * b.quantity)), 0);
+    let totalPrice = items.reduce((a, b) => a + (Math.ceil(priceAfterDiscount(b.mrp, b.discount) * (b.quantity || 1))), 0);
     if (isNaN(totalPrice)) totalPrice = null;
     useEffect(() => { setPaidAmt(totalPrice) }, [items]);
 
@@ -35,7 +35,9 @@ export default function Bill() {
             if (e.key === 'ArrowUp')   return setSuggestIdx(prev => prev > 0 && prev - 1);
             if (e.key === 'ArrowDown') return setSuggestIdx(prev => prev < suggests_.current.length-1 ? prev + 1 : suggests_.current.length-1);
             if (e.key === 'Enter') {
-                setItems(prev => [suggests_.current[suggestIdx_.current], ...prev]);
+                if(items.some(a=>a?._id == suggests_.current[suggestIdx_.current]._id)) setMessage(suggests_.current[suggestIdx_.current].name+' is already added');
+                else setItems(prev => [suggests_.current[suggestIdx_.current], ...prev]);
+                
                 setInputTxt(''); setSuggests([]); setSuggestIdx(0);
                 lookup_.current.classList.remove('left-3');
                 lookup_.current.classList.add('-left-[150%]');
@@ -45,11 +47,11 @@ export default function Bill() {
 
         document.addEventListener('keydown', keyFn);
         return () => document.removeEventListener('keydown', keyFn);
-    }, []);
+    }, [items]);
 
     function setVal(idx, name, value) {
-        if (name.includes('discount') && value > 100 || value < 0) return;
-        if (name.includes('quantity') && value > 5000) return;
+        if (name.includes('discount') && (value > 100 || value < 0)) return;
+        if (name.includes('quantity') && ( value === '0' || value > 5000 )) return;
 
         setItems(prev => {
             const updated = [...prev];
@@ -73,7 +75,9 @@ export default function Bill() {
 
         lookup_.current.classList.remove('left-3');
         lookup_.current.classList.add('-left-[150%]');
-        setItems(prev => [...prev, suggests[idx]]); setInputTxt(''); setSuggests([]); setSuggestIdx(0)
+        if(items.some(a=>a?._id == suggests[idx]._id)) setMessage(suggests[idx].name+' is already added');
+        else setItems(prev => [suggests[idx], ...prev]);
+        setInputTxt(''); setSuggests([]); setSuggestIdx(0);
     }
 
 
@@ -175,9 +179,9 @@ export default function Bill() {
                                                 <p className="text-xs font-light tracking-wide text-slate-300 mr-2 truncate cursor-default">{item.salt}</p>
                                             </div>
                                             <p className="cursor-default">{item.mrp} ₹</p>
-                                            <input onChange={(e) => setVal(idx, 'quantity', e.target.value)} type="number" name='quantity' id='quantity' value={item.quantity} className="w-full hover:bg-[#0000003f] rounded-md outline-none text-center py-1 " />
+                                            <input onChange={(e) => setVal(idx, 'quantity', e.target.value)} type="number" name='quantity' id='quantity' value={item.quantity} placeholder="1" className="w-full hover:bg-[#0000003f] rounded-md outline-none text-center py-1 " />
                                             <label htmlFor={`discount${idx}`} className="flex items-center justify-center gap-x-0.5 hover:bg-[#0000003f] rounded-md"><input onChange={(e) => setVal(idx, 'discount', e.target.value)} type="number" name={`discount${idx}`} id={`discount${idx}`} value={item.discount} className="w-7 outline-none text-right py-1 " /> %</label>
-                                            <p className="cursor-default">{(priceAfterDiscount(item.mrp, item.discount) || 0) * item.quantity} ₹</p>
+                                            <p className="cursor-default">{(priceAfterDiscount(item.mrp, item.discount) || 0) * (item.quantity || 1)} ₹</p>
                                         </Fragment>
                                     ))
                                 }

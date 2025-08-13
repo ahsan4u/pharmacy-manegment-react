@@ -18,7 +18,6 @@ export default function AddMedicine() {
     }
 
     async function submitFormFn(e) {
-        console.log(e.target.tagName)
         if (['name', 'cost', 'mrp', 'exp', 'quantity'].some(key => !formData[key])) {
             const inputs = formDom_.current.querySelectorAll('input, select');
             inputs.forEach(input => { if (!formData[input.name]) input.classList.add('border-red-500') });
@@ -55,14 +54,14 @@ export default function AddMedicine() {
                     {['tab', 'cap'].some((a) => a == formData.type) && <input onChange={setVal} value={formData.tabletsPerSheet} type="number" name="tabletsPerSheet" spellCheck="false" placeholder="Tablets per Sheet" autoComplete="off" className="border w-[49%] h-12 pl-2 rounded-lg block" />}
 
                     {formData.type !== 'other' &&
-                    <div className="border rounded-lg w-full">
-                        <div>
-                            <div className="flex gap-3 items-center mx-2 overflow-x-auto">
-                                {[...ingradients].reverse().map((txt, idx) => <div key={idx} className="flex gap-x-2 mt-2 items-center bg-slate-800 shrink-0 px-2 py-1 rounded-md"><img onClick={() => setIngradients(ingradients.filter(item => item != txt))} src="/icons/trash.png" className="h-4 cursor-pointer" /><p className="text-nowrap font-light">{txt}</p></div>)}
+                        <div className="border rounded-lg w-full">
+                            <div>
+                                <div className="flex gap-3 items-center mx-2 overflow-x-auto">
+                                    {[...ingradients].reverse().map((txt, idx) => <div key={idx} className="flex gap-x-2 mt-2 items-center bg-slate-800 shrink-0 px-2 py-1 rounded-md"><img onClick={() => setIngradients(ingradients.filter(item => item != txt))} src="/icons/trash.png" className="h-4 cursor-pointer" /><p className="text-nowrap font-light">{txt}</p></div>)}
+                                </div>
                             </div>
-                        </div>
-                        <input onChange={(e) => setSaltInput(e.target.value)} onKeyUp={(e) => { if (e.key == 'Enter') { setIngradients((pre) => ([...pre, saltInput])); setSaltInput('') } }} type="text" value={saltInput} name="" placeholder="Active Salts" id="" className="h-12 w-full" />
-                    </div>}
+                            <input onChange={(e) => setSaltInput(e.target.value)} onKeyUp={(e) => { if (e.key == 'Enter') { setIngradients((pre) => ([...pre, saltInput])); setSaltInput('') } }} type="text" value={saltInput} name="" placeholder="Active Salts" id="" className="h-12 w-full" />
+                        </div>}
 
                     <input onChange={setVal} value={formData.quantity} type="number" name="quantity" spellCheck="false" placeholder="Quantity*..." autoComplete="off" className="border w-[49%] h-12 pl-2 rounded-lg block" />
                     <input onChange={setVal} value={formData.shell} type="text" name="shell" spellCheck="false" placeholder="Shell No." autoComplete="off" className="border w-[49%] h-12 pl-2 rounded-lg block" />
