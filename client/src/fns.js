@@ -1,4 +1,4 @@
-export const limit = 10;
+export const limit = 40;
 
 export function debouncer(fn, t) {
     let timeId;
